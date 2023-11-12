@@ -18,8 +18,8 @@ const string& DictionaryEntry::getField4() const {
 const string& DictionaryEntry::getField5() const {
     return field5;
 }
-const vector<string>& DictionaryEntry::getDefinition() const {
-    return definition;
+const vector<string>& DictionaryEntry::getDefinitions() const {
+    return definitions;
 }
 const string& DictionaryEntry::getDictId() const {
     return dictID;
@@ -30,31 +30,27 @@ const string& DictionaryEntry::getField8() const {
 DictionaryEntry::DictionaryEntry() {
     // This is empty for now
 }
-void DictionaryEntry::addEntry(const vector<string>& fields1to5,
-                               const string& definitions, const string& dictID, const string& unknownField8) {
-    mainText = fields1to5[0].substr(1, fields1to5[0].size() - 2);
-
-    yomikata = fields1to5[1].substr(1, fields1to5[1].size() - 2);
-    //cout << yomikata << endl;
-    speechTag = fields1to5[2].substr(1, fields1to5[2].size() - 2);
-    field4 = fields1to5[3].substr(1, fields1to5[3].size() - 2);
+DictionaryEntry::DictionaryEntry(const vector<string>& fields1to5,
+                               const string& defs, const string& dictID, const string& unknownField8) {
+    mainText = fields1to5[0];
+    yomikata = fields1to5[1];
+    speechTag = fields1to5[2];
+    field4 = fields1to5[3];
     field5 = fields1to5[4];
 
     // Build definitions
-    vector<string> defs;
-    stringstream ss(definitions);
+    stringstream ss(defs);
     string input;
-    while (getline(ss, input, ','))
-        defs.push_back(input.substr(1, input.size() - 2));
+    while (getline(ss, input, ',')){
+        definitions.push_back(input.substr(1, input.size() - 2));
+    }
 
     this->dictID = dictID.substr(1, dictID.size() - 2);
     field8 = unknownField8.substr(1, unknownField8.size() - 2);
-
-
 }
 void DictionaryEntry::printEntry() {
     cout << "Term: " << mainText << endl;
     cout << "Reading: " << yomikata << endl;
-    cout << "Definition: " << definition[0] << endl;
-
+    for (string& def : definitions)
+        cout << "Definition: " << def << endl;
 }

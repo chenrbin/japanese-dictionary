@@ -7,12 +7,25 @@
 #include <chrono>
 #include "DictionaryEntry.h"
 using namespace std;
+using namespace chrono;
+void printEntry(const string& target, map<string, vector<DictionaryEntry>>& jisho){
+    if (jisho.count(target))
+        for (DictionaryEntry& entry : jisho[target])
+            entry.printEntry();
+    else
+        cout << target << " is missing\n";
+}
 int main(){
-    auto start_time = std::chrono::steady_clock::now();
+    // Timer to track time efficiency
+    auto start_time = steady_clock::now();
     cout << "Start timer\n";
+
+    // Counter for dictionary entry
     int entryCount = 0;
-    map<string, DictionaryEntry> jisho;
+
+    map<string, vector<DictionaryEntry>> jisho;
     for (int i = 1; i <= 32; ++i) { // Iterates for each term bank file
+        // Open file
         ifstream file("../jmdict_english/term_bank_" + to_string(i) + ".json");
         if (!file.is_open()) {
             cout << "File could not be opened\n";
@@ -25,35 +38,34 @@ int main(){
 
         // Every entry contains two [ and two ]. Use these as delimiters
         while (true) {
-            string part1, part2, part3, part4;
+            string startingBracket, termField, definitionField, endingField;
 
-            if (!getline(file, part1, '[') || !getline(file, part2, '[') || !getline(file, part3, ']') ||
-                !getline(file, part4, ']'))
+            if (!getline(file, startingBracket, '[') || !getline(file, termField, '[') || !getline(file, definitionField, ']') ||
+                !getline(file, endingField, ']'))
                 break;
 
-            // Parse part2, which contains first five fields
+            // Parse termField, which contains first five fields
             vector<string> fields1to5(5);
-            stringstream ss(part2);
+
+            stringstream ss(termField);
             for (string& field: fields1to5)
                 getline(ss, field, ',');
+            // First four fields are enclosed by quotes. Delete those
+            for (int j = 0; j < 4; ++j)
+                fields1to5[j] = fields1to5[j].substr(1, fields1to5[j].size() - 2);
 
-            // Part3 is only definition field. Individual definitions will be parsed in the class
-
-            // Parse part4, which contains last two fields
+            // Parse endingField, which contains last two fields
             string field7, field8;
-            stringstream ss2(part4);
+            stringstream ss2(endingField);
             getline(ss2, field7, ','); // Unused comma
             getline(ss2, field7, ',');
             getline(ss2, field8, ',');
-            if (!jisho.count(fields1to5[0]))
-                jisho[fields1to5[0]].addEntry(fields1to5, part2, field7, field8);
-            else {
-                //cout << fields1to5[0] << " | " << entryCount << " entry already exists. Do something later\n";
-            }
+
+            jisho[fields1to5[0]].push_back(DictionaryEntry(fields1to5, definitionField, field7, field8));
             entryCount++;
         }
 
-        //cout << entryCount << endl;
+        cout << entryCount << endl;
 
         // Read last bracket and confirm end of file
         getline(file, input, ']');
@@ -61,15 +73,13 @@ int main(){
             cout << "File not empty";
         file.close();
     }
-    auto end_time = std::chrono::steady_clock::now();
     cout << "Jisho size is " << jisho.size() << endl;
-    string target = "オールターナティブ・スクール";
-    if (jisho.count(target))
-        jisho[target].printEntry();
-    else
-        cout << target << " is missing\n";
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "Elapsed time: " << elapsed_time.count() << " milliseconds" << std::endl;
+    printEntry("キーウィ", jisho);
+
+    // Print elapsed time
+    auto end_time = steady_clock::now();
+    auto elapsed_time = duration_cast<milliseconds>(end_time - start_time);
+    cout << "Elapsed time: " << elapsed_time.count() << " milliseconds" << endl;
 
     return 0;
 }
