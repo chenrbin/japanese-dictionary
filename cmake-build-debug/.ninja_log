@@ -1,0 +1,8 @@
+# ninja log v5
+5	502	7215334341270510	CMakeFiles/japanese_dictionary2.dir/src/DictionaryEntry.cpp.obj	13ae5879f3e264cd
+1	743	7215334343664155	CMakeFiles/japanese_dictionary2.dir/src/main.cpp.obj	518d9650f6d1e23b
+743	969	7215334345880393	japanese_dictionary2.exe	21cb0ea1ed9489fd
+3	667	7215334537234064	CMakeFiles/japanese_dictionary2.dir/src/main.cpp.obj	518d9650f6d1e23b
+668	867	7215334539201694	japanese_dictionary2.exe	21cb0ea1ed9489fd
+3	681	7215334671181545	CMakeFiles/japanese_dictionary2.dir/src/main.cpp.obj	518d9650f6d1e23b
+681	882	7215334673157060	japanese_dictionary2.exe	21cb0ea1ed9489fd
