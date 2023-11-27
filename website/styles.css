@@ -1,0 +1,56 @@
+:root {
+    /* These values are used as a backup incase if no theme is loaded. */
+    --bg-color: #C1CFFF;
+    --text-color: #2050FF;
+    /* --text-hover-color: #C14600; */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    background: white;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-color);
+}
+
+input {
+    font-size: 2em;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg-color);
+    color: black;
+    border: none;
+}
+input::placeholder {
+    color: #1E3FB3;
+    opacity: 1;
+}
+button {
+    font-size: 2em;
+    font-family: 'Noto Sans JP', sans-serif;
+    border: none;
+}
+
+.container {
+    margin-top: 3vh;
+    text-align: center;
+}
+
+.header {
+    padding: .5vh;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-radius: 10px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.result-list {
+    display: flex;
+    background: red;
+}
+
+.result {
+    display: flex;
+}
