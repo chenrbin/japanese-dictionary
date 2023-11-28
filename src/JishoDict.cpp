@@ -136,7 +136,7 @@ vector<DictionaryEntry> JishoDict::operator[](const string& term) {
 // Print all entries to a term
 void JishoDict::printEntry(const string& term) {
     auto entries = getEntry(term);
-    if (entries.empty())
+    if (!entries.empty())
         for (DictionaryEntry& entry: entries)
             entry.printEntry();
     else
