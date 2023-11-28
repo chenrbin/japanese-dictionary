@@ -15,6 +15,32 @@ void printEntry(const string& target, map<string, vector<DictionaryEntry>>& jish
     else
         cout << target << " is missing\n";
 }
+
+vector<pair<string,vector<DictionaryEntry>*>> basicSearch(const string& query, map<string, vector<DictionaryEntry>>& jisho)
+{
+    vector<pair<string,vector<DictionaryEntry>*>> result;
+    for (unsigned int i = query.length(); i > 0; i-=3)
+    {
+        if (jisho.count(query.substr(0, i)) > 0)
+            result.push_back(make_pair(query.substr(0, i), &jisho[query.substr(0, i)]));
+    }
+    return result;
+}
+
+void searchTest(const string& query, map<string, vector<DictionaryEntry>>& jisho)
+{
+    for (pair<string,vector<DictionaryEntry>*> match : basicSearch(query, jisho))
+    {
+        for (int i = 0; i < match.second->size(); i++)
+        {
+            DictionaryEntry entry = match.second->at(i);
+            cout << match.first << "\n";
+            for (const string& def : entry.getDefinitions())
+                cout << "\t" << def << "\n";
+        }
+    }
+}
+
 int main(){
     // Timer to track time efficiency
     auto start_time = steady_clock::now();
@@ -80,6 +106,9 @@ int main(){
     auto end_time = steady_clock::now();
     auto elapsed_time = duration_cast<milliseconds>(end_time - start_time);
     cout << "Elapsed time: " << elapsed_time.count() << " milliseconds" << endl;
+
+    // Temp
+    searchTest("適当", jisho);
 
     return 0;
 }
