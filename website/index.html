@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- <meta name="color-scheme" content="dark light" /> -->
+<meta name="robots" content="noindex" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<html lang="en">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<head>
+  <title>Japanese-English Dictionary</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="" />
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+    <div class="container">
+        <span class="header">Japanese-English Dictionary</span>
+    </div>
+    <div class="container">
+        <input type="text" placeholder="日本語で文を入力して下さい"></input>
+        <button> GO</button>
+    </div>
+    <div class="result-list">
+        <div class="result">
+            <span class="result-term">
+            <ruby>
+                <!-- It would make sense to break this up into lines, but due to the nature of HTML there would be improper whitespacing. -->
+                <a class="result-kanji" lang="ja">光</a><a class="result-kanji" lang="ja">陰</a><a class="result-kanji" lang="ja">矢</a><rt class="result-kanji-segment-reading">こういんや</rt>
+            </ruby>のごとし
+            </span>
+            <ul class="result-def-list">
+                <li>time flies like an arrow</li> 
+                <li>time and tide wait for no man</li> 
+                <li>life is short</li> 
+            </ul>
+        </div>
+
+        <hr>
+    </div>
+
+</body>
+</html>
