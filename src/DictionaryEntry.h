@@ -15,10 +15,9 @@ class DictionaryEntry {
     string dictID; // Assigned dictionary ID. Can be duplicate
     string field8; // Unknown. Usually empty
 public:
-    // Constructor is not used to initialize variables in order to deal with duplicates later
     DictionaryEntry();
-    DictionaryEntry(const vector<string>& fields1to5, const string& defs, const string& dictID,
-                    const string& unknownField8);
+    DictionaryEntry(const vector<string>&, const vector<string>&, const string&, const string&);
+    DictionaryEntry(const string&, const string&, const string&);
     const string& getMainText() const;
     const string& getYomikata() const;
     const string& getSpeechTag() const;

@@ -1,7 +1,3 @@
-//
-// Created by geniu on 11/12/2023.
-//
-
 #include "DictionaryEntry.h"
 const string& DictionaryEntry::getMainText() const {
     return mainText;
@@ -27,30 +23,34 @@ const string& DictionaryEntry::getDictId() const {
 const string& DictionaryEntry::getField8() const {
     return field8;
 }
-DictionaryEntry::DictionaryEntry() {
-    // This is empty for now
-}
-DictionaryEntry::DictionaryEntry(const vector<string>& fields1to5,
-                               const string& defs, const string& dictID, const string& unknownField8) {
+DictionaryEntry::DictionaryEntry() = default;
+// Constructs dictionary entry using the strings obtained from the term bank files. All
+DictionaryEntry::DictionaryEntry(const vector<string>& fields1to5, const vector<string>& definitions,
+                                 const string& dictID, const string& unknownField8) {
     mainText = fields1to5[0];
     yomikata = fields1to5[1];
     speechTag = fields1to5[2];
     field4 = fields1to5[3];
     field5 = fields1to5[4];
-
-    // Build definitions
-    stringstream ss(defs);
-    string input;
-    while (getline(ss, input, ',')){
-        definitions.push_back(input.substr(1, input.size() - 2));
-    }
-
-    this->dictID = dictID.substr(1, dictID.size() - 2);
-    field8 = unknownField8.substr(1, unknownField8.size() - 2);
+    this->definitions = definitions;
+    this->dictID = dictID;
+    field8 = unknownField8;
 }
+// Print Term, reading, and all definitions
 void DictionaryEntry::printEntry() {
     cout << "Term: " << mainText << endl;
     cout << "Reading: " << yomikata << endl;
     for (string& def : definitions)
         cout << "Definition: " << def << endl;
+}
+
+// Simplified entry addition, using only the basic attributes
+DictionaryEntry::DictionaryEntry(const string& term, const string& reading, const string& definition) {
+    mainText = term;
+    yomikata = reading;
+    definitions.push_back(definition);
+
+    // Initialize unused attributes
+    speechTag = "", field4 = "", field5 = "", dictID = "", field8 = "";
+
 }
