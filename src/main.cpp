@@ -19,41 +19,40 @@ void printEntry(const string& target, map<string, vector<DictionaryEntry>>& jish
         cout << target << " is missing\n";
 }
 
-vector<pair<string,vector<DictionaryEntry>*>> basicSearch(const string& query, map<string, vector<DictionaryEntry>>& jisho)
+vector<vector<DictionaryEntry>> basicSearch(const string& query, JishoDict& jisho)
 {
-    vector<pair<string,vector<DictionaryEntry>*>> result;
+    vector<vector<DictionaryEntry>> result;
     for (unsigned int i = query.length(); i > 0; i-=3)
-    {
-        if (jisho.count(query.substr(0, i)) > 0)
-            result.push_back(make_pair(query.substr(0, i), &jisho[query.substr(0, i)]));
-    }
+        if (!jisho.getEntry(query.substr(0, i)).empty())
+            result.push_back(jisho.getEntry(query.substr(0, i)));
     return result;
 }
 
-void searchTest(const string& query, map<string, vector<DictionaryEntry>>& jisho)
+void searchTest(const string& query, JishoDict& jisho)
 {
-    for (pair<string,vector<DictionaryEntry>*> match : basicSearch(query, jisho))
+    for (const vector<DictionaryEntry>& match : basicSearch(query, jisho))
     {
-        for (int i = 0; i < match.second->size(); i++)
+        for (const DictionaryEntry& entry : match)
         {
-            DictionaryEntry entry = match.second->at(i);
-            cout << match.first << "\n";
+            cout << entry.getMainText() << endl;
             for (const string& def : entry.getDefinitions())
-                cout << "\t" << def << "\n";
+                cout << "\t" << def << endl;
         }
     }
 }
 
 
 int main(){
-    JishoDict jisho(false);
+    JishoDict jisho(true);
 
     // Test if dictionary is working
     cout << "Jisho size is " << jisho.getDictionarySize() << endl;
+    cout << "Kana map size is " << jisho.getKanaMapSize() << endl;
     jisho.printEntry("キーウィ");
-    string str = "キーウィ";
-    cout << str.size() << endl;
-
+    for (const string& term : jisho.getTermsFromKana("たえる"))
+        cout << term << " ";
+    cout << endl;
+    searchTest("堪える", jisho);
     cout << endl;
     return 0;
 }
