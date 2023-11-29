@@ -27,6 +27,8 @@ void JishoDict::buildDictionary() {
 // Clear dictionary entries and reassign usingOrdered
 void JishoDict::resetDictionary(bool newValue) {
     (usingOrdered) ? ordered.clear() : unordered.clear();
+    (usingOrdered) ? kanaOrdered.clear() : kanaUnordered.clear();
+
     usingOrdered = newValue;
     buildDictionary();
 }
@@ -66,9 +68,9 @@ void JishoDict::readFile(const string& filename) {
         vector<string> definitions;
         ss = stringstream(definitionField);
         string def;
-        while (getline(ss, input, ',')) {
-            definitions.push_back(input.substr(1, def.size() - 2));
-        }
+        while (getline(ss, def, '"') )
+            if (!def.empty() && def != ",")
+                definitions.push_back(def);
 
         // Parse endingField, which contains last two fields
         string field7, field8;
@@ -90,9 +92,13 @@ void JishoDict::readFile(const string& filename) {
         // Update the size of the longest string
         if (fields1to5[0].size() > maxStringSize)
             maxStringSize = fields1to5[0].size();
-        // Update kanaMap
-        if (!fields1to5[1].empty())
-            kanaMap[fields1to5[1]].push_back(fields1to5[0]);
+        // Update kanaOrdered
+        if (!fields1to5[1].empty()){
+            if (usingOrdered)
+                kanaOrdered[fields1to5[1]].emplace(fields1to5[0]);
+            else
+                kanaUnordered[fields1to5[1]].emplace(fields1to5[0]);
+        }
     }
 
     // Read last bracket and confirm end of file
@@ -112,9 +118,9 @@ void JishoDict::addSingleEntry(const string& term, const string& reading, const 
     // Update the size of the longest string
     if (term.size() > maxStringSize)
         maxStringSize = term.size();
-    // Update kanaMap
+    // Update kana map
     if (!reading.empty())
-        kanaMap[reading].push_back(term);
+        (usingOrdered) ? kanaOrdered[reading].emplace(term) : kanaUnordered[reading].emplace(term);
 }
 
 // Search a term in the dictionary and return a copy of vector of entries.
@@ -126,6 +132,15 @@ vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
     else
         return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
 }
+
+// Returns a list of terms that match the given kana reading
+set<string> JishoDict::getTermsFromKana(const string& reading) {
+    if (usingOrdered)
+        return kanaOrdered.count(reading) ? kanaOrdered[reading] : set<string>();
+    else
+        return kanaUnordered.count(reading) ? kanaUnordered[reading] : set<string>();
+}
+
 vector<DictionaryEntry> JishoDict::operator[](const string& term) {
     if (usingOrdered)
         return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
@@ -157,8 +172,13 @@ int JishoDict::getDictionarySize() {
     return (usingOrdered) ? ordered.size() : unordered.size();
 }
 
+// Returns the number of keys in the kana to kanji map
+int JishoDict::getKanaMapSize() {
+    return (usingOrdered) ? kanaOrdered.size() : kanaUnordered.size();
+}
+
 // Return the size of the longest string
-int JishoDict::getMaxStringSize() {
+int JishoDict::getMaxStringSize() const {
     return maxStringSize;
 }
 

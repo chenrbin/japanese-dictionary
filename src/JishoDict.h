@@ -6,6 +6,7 @@
 #include <fstream>
 #include <chrono>
 #include <iostream>
+#include <set>
 #include "DictionaryEntry.h"
 using namespace std;
 using namespace chrono;
@@ -17,7 +18,8 @@ class JishoDict {
     bool usingOrdered;
 
     // Map to find terms using kana reading
-    map<string, vector<string>> kanaMap;
+    map<string, set<string>> kanaOrdered;
+    unordered_map<string, set<string>> kanaUnordered;
 
     // Timer
     time_point<steady_clock> start_time;
@@ -33,11 +35,13 @@ public:
     void addSingleEntry(const string&, const string&, const string&);
     void printEntry(const string& term);
     vector<DictionaryEntry> getEntry(const string&);
+    set<string> getTermsFromKana(const string&);
     vector<DictionaryEntry> operator[](const string&);
     const duration<long long int, ratio<1, 1000>>& getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();
-    int getMaxStringSize();
+    int getKanaMapSize();
+    int getMaxStringSize() const;
 };
 
 
