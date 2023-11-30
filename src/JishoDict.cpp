@@ -63,15 +63,13 @@ void JishoDict::readFile(const string& filename) {
         // First four fields are enclosed by quotes. Delete those
         for (int j = 0; j < 4; ++j)
             fields1to5[j] = fields1to5[j].substr(1, fields1to5[j].size() - 2);
-
         // Parse definitionField and create a vector of definition strings
         vector<string> definitions;
         ss = stringstream(definitionField);
         string def;
-        while (getline(ss, def, '"') )
+        while (getline(ss, def, '"'))
             if (!def.empty() && def != ",")
                 definitions.push_back(def);
-
         // Parse endingField, which contains last two fields
         string field7, field8;
         ss = stringstream(endingField);
@@ -80,7 +78,7 @@ void JishoDict::readFile(const string& filename) {
         getline(ss, field8, ',');
 
         // Remove surrounding quotes
-        field7 = field7.substr(1, field7.size() - 2);
+        field7 = field7.substr(0, field7.size());
         field8 = field8.substr(1, field8.size() - 2);
 
         // Create entry
@@ -93,7 +91,7 @@ void JishoDict::readFile(const string& filename) {
         if (fields1to5[0].size() > maxStringSize)
             maxStringSize = fields1to5[0].size();
         // Update kanaOrdered
-        if (!fields1to5[1].empty()){
+        if (!fields1to5[1].empty()) {
             if (usingOrdered)
                 kanaOrdered[fields1to5[1]].emplace(fields1to5[0]);
             else
@@ -156,6 +154,25 @@ void JishoDict::printEntry(const string& term) {
             entry.printEntry();
     else
         cout << term << " is missing\n";
+}
+
+// Scan a string of text for terms
+void JishoDict::scanText(const string& query) {
+    auto start = steady_clock::now();
+    for (int i = 0; i < query.length(); i += 3) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+            // Scan for hits
+            //cout << query.substr(i, j) << endl;
+            vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
+            if (!hit.empty()) {
+                hit[0].printEntry(); // Print only one entry for now
+                i += j - 3; // Move starting point to the end of the hit term
+                break;
+            }
+        }
+    }
+    auto end = steady_clock::now();
+    cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
 const duration<long long int, ratio<1, 1000>>& JishoDict::getBuildTime() const {
