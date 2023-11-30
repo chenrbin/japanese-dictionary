@@ -116,6 +116,10 @@ hr {
     color: var(--text-color);
 }
 
+.result-term-reading {
+    color: var(--text-color-secondary);
+}
+
 .result-kanji {
     margin: 0;
     padding: 0;

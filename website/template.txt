@@ -1,0 +1,14 @@
+<!-- <div class="result"> -->
+<!--     <span class="result-term"> -->
+<!--     <ruby> -->
+<!--         [> It would make sense to break this up into lines, but due to the nature of HTML there would be improper whitespacing. <] -->
+<!--         <a class="result-kanji" lang="ja">光</a><a class="result-kanji" lang="ja">陰</a><a class="result-kanji" lang="ja">矢</a><rt class="result-kanji-segment-reading">こういんや</rt> -->
+<!--     </ruby>のごとし -->
+<!--     </span> -->
+<!--     <ul class="result-def-list"> -->
+<!--         <li>time flies like an arrow</li>  -->
+<!--         <li>time and tide wait for no man</li>  -->
+<!--         <li>life is short</li>  -->
+<!--     </ul> -->
+<!-- </div> -->
+
