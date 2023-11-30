@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <set>
+#include <algorithm>
 #include "DictionaryEntry.h"
 using namespace std;
 using namespace chrono;
@@ -37,6 +38,7 @@ public:
     vector<DictionaryEntry> getEntry(const string&);
     set<string> getTermsFromKana(const string&);
     vector<DictionaryEntry> operator[](const string&);
+    void scanText(const string& query);
     const duration<long long int, ratio<1, 1000>>& getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();

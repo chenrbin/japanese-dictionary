@@ -38,10 +38,13 @@ DictionaryEntry::DictionaryEntry(const vector<string>& fields1to5, const vector<
 }
 // Print Term, reading, and all definitions
 void DictionaryEntry::printEntry() {
-    cout << "Term: " << mainText << endl;
-    cout << "Reading: " << yomikata << endl;
+    cout << mainText;
+    if (!yomikata.empty())
+        cout << " - " << yomikata;
+    cout << endl;
     for (string& def : definitions)
-        cout << "Definition: " << def << endl;
+        cout << "\t" << def << endl;
+    //cout << dictID << endl;
 }
 
 // Simplified entry addition, using only the basic attributes
