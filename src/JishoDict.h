@@ -29,6 +29,8 @@ class JishoDict {
     // Extra functionality used for searching algorithm
     int maxStringSize;
 
+    vector<DictionaryEntry> searchResults;
+
     // Map from elementary verb conjugations to base forms
     // 0 : a-stem, 1 : i-stem, 2 : e-stem, 3 : o-stem, 4 : te-form, 5 : ta-form
     map<string, pair<string,int>> conjugation;
@@ -40,12 +42,15 @@ public:
     void readFile(const string&);
     void addSingleEntry(const string&, const string&, const string&);
     void printEntry(const string& term);
+    void printResults();
+    string printResultsJson();
     vector<DictionaryEntry> getEntry(const string&);
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
     vector<DictionaryEntry> getEntryConjugation(const string& term);
     set<string> getTermsFromKana(const string&);
     vector<DictionaryEntry> operator[](const string&);
     void scanText(const string& query);
+    void scanTextAndStoreResults(const string& query);
     const duration<long long int, ratio<1, 1000>>& getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();
