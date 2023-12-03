@@ -28,6 +28,8 @@ class JishoDict {
 
     // Extra functionality used for searching algorithm
     int maxStringSize;
+
+    vector<DictionaryEntry> searchResults;
 public:
     JishoDict(bool);
     void buildDictionary();
@@ -35,10 +37,13 @@ public:
     void readFile(const string&);
     void addSingleEntry(const string&, const string&, const string&);
     void printEntry(const string& term);
+    void printResults();
+    string printResultsJson();
     vector<DictionaryEntry> getEntry(const string&);
     set<string> getTermsFromKana(const string&);
     vector<DictionaryEntry> operator[](const string&);
     void scanText(const string& query);
+    void scanTextAndStoreResults(const string& query);
     const duration<long long int, ratio<1, 1000>>& getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();
