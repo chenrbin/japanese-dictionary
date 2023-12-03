@@ -1,2 +1,4 @@
 .ccls-cache
 cmake-build-debug
+out
+src/out
