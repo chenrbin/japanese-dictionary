@@ -5,6 +5,33 @@ JishoDict::JishoDict(bool usingOrdered) {
     this->usingOrdered = usingOrdered;
     maxStringSize = 0;
     buildDictionary();
+    buildConjugations();
+}
+
+// Manually add conjugations to conjugation map
+void JishoDict::buildConjugations() {
+    // Stems
+    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの", "ばびべぼ", "まみめも", "さしせそ", "かきけこ", "がぎげご"};
+    string vowelEndings = "うつるぬぶむすくぐ";
+    for (const string& cons : stems) {
+        for (int j = 0; j < 4; j++) {
+            conjugation[cons.substr(j, 1)] = make_pair(vowelEndings.substr(j, 1), j);
+        }
+    }
+    // Te forms
+    conjugation["って"] = make_pair("うつる", 4);
+    conjugation["んで"] = make_pair("ぬぶむ", 4);
+    conjugation["して"] = make_pair("す", 4);
+    conjugation["いて"] = make_pair("く", 4);
+    conjugation["いで"] = make_pair("ぐ", 4);
+    conjugation["て"] = make_pair("る", 4);
+    // Ta forms
+    conjugation["った"] = make_pair("うつる", 5);
+    conjugation["んだ"] = make_pair("ぬぶむ", 5);
+    conjugation["した"] = make_pair("す", 5);
+    conjugation["いた"] = make_pair("く", 5);
+    conjugation["いだ"] = make_pair("ぐ", 5);
+    conjugation["た"] = make_pair("る", 5);
 }
 
 // Read jmdict files and record time
@@ -129,6 +156,21 @@ vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
         return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
     else
         return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
+}
+
+vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
+    if (term.length() < 6)
+        return {};
+    vector<pair<vector<DictionaryEntry>*,int>> result;
+    for (int i = 3; i <= term.length(); i+=3) {
+        if (conjugation.count(term.substr(i, 3))) {
+            pair<string, int> conj = conjugation[term.substr(i, 3)];
+            for (int j = 0; j <= conj.first.length(); j+=3)
+                if (ordered.count(term.substr(0, i) + conj.first.substr(j,3))) // TODO generalize to unordered
+                     result.push_back(make_pair(&ordered[term.substr(0, i) + conj.first.substr(j,3)], conj.second));
+        }
+    }
+    return result;
 }
 
 // Returns a list of terms that match the given kana reading
