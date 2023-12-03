@@ -56,3 +56,4 @@ DictionaryEntry::DictionaryEntry(const string& term, const string& reading, cons
     speechTag = "", field4 = "", field5 = "", dictID = "", field8 = "";
 
 }
+

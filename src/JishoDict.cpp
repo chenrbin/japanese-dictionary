@@ -18,7 +18,7 @@ void JishoDict::buildDictionary() {
     start_time = steady_clock::now();
     for (int i = 1; i <= 32; ++i) { // Iterates for each term bank file
         // Open file
-        readFile("../jmdict_english/term_bank_" + to_string(i) + ".json");
+        readFile("./jmdict_english/term_bank_" + to_string(i) + ".json");
     }
     buildTime = duration_cast<milliseconds>(steady_clock::now() - start_time);
     cout << "Elapsed time: " << buildTime.count() << " milliseconds" << endl;
@@ -156,17 +156,52 @@ void JishoDict::printEntry(const string& term) {
         cout << term << " is missing\n";
 }
 
+void JishoDict::printResults() {
+    if (searchResults.size() == 0) {
+        cout << "No results." << endl;
+        return;
+    }
+    for (auto result: searchResults) {
+        result.printEntry();
+    }
+}
+
+string JishoDict::printResultsJson() {
+    string json = "{\"results\":[";
+    for (int i = 0; i < searchResults.size(); ++i) {
+        DictionaryEntry result = searchResults[i];
+        string term = "\"term\":\"" + result.getMainText() + "\",";
+        string yomikata = "\"yomikata\":\"" + result.getYomikata() + "\",";
+        string definitions = "\"definitions\":[";
+        vector<string> defVect = result.getDefinitions();
+        for (int j = 0; j < defVect.size(); ++j) {
+            string def = defVect[j];
+            definitions += "\"" + def + "\"";
+            if (j != defVect.size() - 1) {
+                definitions += ",";
+            }
+        }
+        definitions += "]";
+        json += "{" + term + yomikata + definitions + "}";
+        if (i != searchResults.size() - 1) { 
+            json += ",";
+        }
+    };
+    json += "]}";
+    return json;
+}
+
 // Scan a string of text for terms
 void JishoDict::scanText(const string& query) {
     auto start = steady_clock::now();
-    for (int i = 0; i < query.length(); i += 1) { // Start index
-        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
+    for (int i = 0; i < query.length(); i += 3) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
             // Scan for hits
             //cout << query.substr(i, j) << endl;
             vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
             if (!hit.empty()) {
                 hit[0].printEntry(); // Print only one entry for now
-                i += j - 1; // Move starting point to the end of the hit term
+                i += j - 3; // Move starting point to the end of the hit term
                 break;
             }
         }
@@ -175,8 +210,30 @@ void JishoDict::scanText(const string& query) {
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
-int JishoDict::getBuildTime() const {
-    return buildTime.count();
+void JishoDict::scanTextAndStoreResults(const string& query) {
+    searchResults.clear();
+    auto start = steady_clock::now();
+    for (int i = 0; i < query.length(); i += 3) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+            // Scan for hits
+            //cout << query.substr(i, j) << endl;
+            string curr_query = query.substr(i, j);
+            vector<DictionaryEntry> hit = getEntry(curr_query);
+            if (!hit.empty()) {
+                // hit[0].printEntry(); // Print only one entry for now
+                // results.emplace(make_pair(hit[0].getMainText(), hit[0].getDefinitions()));
+                searchResults.push_back(hit[0]);
+                i += j - 3; // Move starting point to the end of the hit term
+                break;
+            }
+        }
+    }
+    auto end = steady_clock::now();
+    cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
+}
+
+const duration<long long int, ratio<1, 1000>>& JishoDict::getBuildTime() const {
+    return buildTime;
 }
 
 // Return true if dictionary is using an ordered map
