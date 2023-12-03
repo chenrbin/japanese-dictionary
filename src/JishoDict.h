@@ -44,7 +44,7 @@ public:
     vector<DictionaryEntry> operator[](const string&);
     void scanText(const string& query);
     void scanTextAndStoreResults(const string& query);
-    const duration<long long int, ratio<1, 1000>>& getBuildTime() const;
+    int getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();
     int getKanaMapSize();
