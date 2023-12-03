@@ -5,6 +5,33 @@ JishoDict::JishoDict(bool usingOrdered) {
     this->usingOrdered = usingOrdered;
     maxStringSize = 0;
     buildDictionary();
+    buildConjugations();
+}
+
+// Manually add conjugations to conjugation map
+void JishoDict::buildConjugations() {
+    // Stems
+    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの", "ばびべぼ", "まみめも", "さしせそ", "かきけこ", "がぎげご"};
+    string vowelEndings = "うつるぬぶむすくぐ";
+    for (const string& cons : stems) {
+        for (int j = 0; j < 4; j++) {
+            conjugation[cons.substr(j, 1)] = make_pair(vowelEndings.substr(j, 1), j);
+        }
+    }
+    // Te forms
+    conjugation["って"] = make_pair("うつる", 4);
+    conjugation["んで"] = make_pair("ぬぶむ", 4);
+    conjugation["して"] = make_pair("す", 4);
+    conjugation["いて"] = make_pair("く", 4);
+    conjugation["いで"] = make_pair("ぐ", 4);
+    conjugation["て"] = make_pair("る", 4);
+    // Ta forms
+    conjugation["った"] = make_pair("うつる", 5);
+    conjugation["んだ"] = make_pair("ぬぶむ", 5);
+    conjugation["した"] = make_pair("す", 5);
+    conjugation["いた"] = make_pair("く", 5);
+    conjugation["いだ"] = make_pair("ぐ", 5);
+    conjugation["た"] = make_pair("る", 5);
 }
 
 // Read jmdict files and record time
@@ -131,6 +158,21 @@ vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
         return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
 }
 
+vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
+    if (term.length() < 6)
+        return {};
+    vector<pair<vector<DictionaryEntry>*,int>> result;
+    for (int i = 3; i <= term.length(); i+=3) {
+        if (conjugation.count(term.substr(i, 3))) {
+            pair<string, int> conj = conjugation[term.substr(i, 3)];
+            for (int j = 0; j <= conj.first.length(); j+=3)
+                if (ordered.count(term.substr(0, i) + conj.first.substr(j,3))) // TODO generalize to unordered
+                     result.push_back(make_pair(&ordered[term.substr(0, i) + conj.first.substr(j,3)], conj.second));
+        }
+    }
+    return result;
+}
+
 // Returns a list of terms that match the given kana reading
 set<string> JishoDict::getTermsFromKana(const string& reading) {
     if (usingOrdered)
@@ -157,7 +199,7 @@ void JishoDict::printEntry(const string& term) {
 }
 
 void JishoDict::printResults() {
-    if (searchResults.size() == 0) {
+    if (searchResults.empty()) {
         cout << "No results." << endl;
         return;
     }
@@ -194,14 +236,13 @@ string JishoDict::printResultsJson() {
 // Scan a string of text for terms
 void JishoDict::scanText(const string& query) {
     auto start = steady_clock::now();
-    for (int i = 0; i < query.length(); i += 3) { // Start index
-        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+    for (int i = 0; i < query.length(); i += 1) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            //cout << query.substr(i, j) << endl;
             vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
             if (!hit.empty()) {
                 hit[0].printEntry(); // Print only one entry for now
-                i += j - 3; // Move starting point to the end of the hit term
+                i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
         }
@@ -213,17 +254,14 @@ void JishoDict::scanText(const string& query) {
 void JishoDict::scanTextAndStoreResults(const string& query) {
     searchResults.clear();
     auto start = steady_clock::now();
-    for (int i = 0; i < query.length(); i += 3) { // Start index
-        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+    for (int i = 0; i < query.length(); i += 1) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            //cout << query.substr(i, j) << endl;
             string curr_query = query.substr(i, j);
             vector<DictionaryEntry> hit = getEntry(curr_query);
             if (!hit.empty()) {
-                // hit[0].printEntry(); // Print only one entry for now
-                // results.emplace(make_pair(hit[0].getMainText(), hit[0].getDefinitions()));
                 searchResults.push_back(hit[0]);
-                i += j - 3; // Move starting point to the end of the hit term
+                i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
         }
@@ -232,8 +270,8 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
-const duration<long long int, ratio<1, 1000>>& JishoDict::getBuildTime() const {
-    return buildTime;
+int JishoDict::getBuildTime() const {
+    return buildTime.count();
 }
 
 // Return true if dictionary is using an ordered map

@@ -44,7 +44,6 @@ void DictionaryEntry::printEntry() {
     cout << endl;
     for (string& def : definitions)
         cout << "\t" << def << endl;
-    //cout << dictID << endl;
 }
 
 // Simplified entry addition, using only the basic attributes
