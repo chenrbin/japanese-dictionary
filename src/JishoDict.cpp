@@ -157,7 +157,7 @@ void JishoDict::printEntry(const string& term) {
 }
 
 void JishoDict::printResults() {
-    if (searchResults.size() == 0) {
+    if (searchResults.empty()) {
         cout << "No results." << endl;
         return;
     }
@@ -194,14 +194,13 @@ string JishoDict::printResultsJson() {
 // Scan a string of text for terms
 void JishoDict::scanText(const string& query) {
     auto start = steady_clock::now();
-    for (int i = 0; i < query.length(); i += 3) { // Start index
-        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+    for (int i = 0; i < query.length(); i += 1) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            //cout << query.substr(i, j) << endl;
             vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
             if (!hit.empty()) {
                 hit[0].printEntry(); // Print only one entry for now
-                i += j - 3; // Move starting point to the end of the hit term
+                i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
         }
@@ -213,17 +212,14 @@ void JishoDict::scanText(const string& query) {
 void JishoDict::scanTextAndStoreResults(const string& query) {
     searchResults.clear();
     auto start = steady_clock::now();
-    for (int i = 0; i < query.length(); i += 3) { // Start index
-        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 3) { // String length
+    for (int i = 0; i < query.length(); i += 1) { // Start index
+        for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            //cout << query.substr(i, j) << endl;
             string curr_query = query.substr(i, j);
             vector<DictionaryEntry> hit = getEntry(curr_query);
             if (!hit.empty()) {
-                // hit[0].printEntry(); // Print only one entry for now
-                // results.emplace(make_pair(hit[0].getMainText(), hit[0].getDefinitions()));
                 searchResults.push_back(hit[0]);
-                i += j - 3; // Move starting point to the end of the hit term
+                i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
         }
@@ -232,8 +228,8 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
-const duration<long long int, ratio<1, 1000>>& JishoDict::getBuildTime() const {
-    return buildTime;
+int JishoDict::getBuildTime() const {
+    return buildTime.count();
 }
 
 // Return true if dictionary is using an ordered map
