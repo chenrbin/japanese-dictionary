@@ -48,6 +48,7 @@ void JishoDict::buildDictionary() {
         readFile("./jmdict_english/term_bank_" + to_string(i) + ".json");
     }
     buildTime = duration_cast<milliseconds>(steady_clock::now() - start_time);
+    build_duration_str = to_string(buildTime.count());
     cout << "Elapsed time: " << buildTime.count() << " milliseconds" << endl;
 }
 
@@ -209,7 +210,10 @@ void JishoDict::printResults() {
 }
 
 string JishoDict::printResultsJson() {
-    string json = "{\"results\":[";
+    string json = "{";
+    json += "\"dict_build_time\": \"" + build_duration_str + "\",";
+    json += "\"dict_search_time\": \"" + search_duration_str + "\",";
+    json += "\"results\":[";
     for (int i = 0; i < searchResults.size(); ++i) {
         DictionaryEntry result = searchResults[i];
         string term = "\"term\":\"" + result.getMainText() + "\",";
@@ -267,6 +271,8 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
         }
     }
     auto end = steady_clock::now();
+    
+    search_duration_str = to_string(float(duration_cast<microseconds>(end - start).count()) / 1000);
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
