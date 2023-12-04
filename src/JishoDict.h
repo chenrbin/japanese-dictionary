@@ -25,8 +25,8 @@ class JishoDict {
     // Timer
     time_point<steady_clock> start_time;
     duration<long long, ratio<1, 1000>> buildTime{};
-    string build_duration_str = "";
-    string search_duration_str = "";
+    string build_duration_str;
+    string search_duration_str;
 
     // Extra functionality used for searching algorithm
     int maxStringSize;
