@@ -178,8 +178,8 @@ vector<DictionaryEntry>* JishoDict::getEntry(const string& term) {
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
     vector<pair<vector<DictionaryEntry>*,int>> result;
     for (int i = 3; i <= term.length(); i += 3) { // Ichiban stem test
-        if (ordered.count(term.substr(0, i).append("る"))) {
-            vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i).append("る")];
+        if (getEntry(term.substr(0, i).append("る"))) {
+            vector<DictionaryEntry>* dictionaryForm = getEntry(term.substr(0, i).append("る"));
             if (dictionaryForm->at(1).getVerbType() == "v1")
                 result.push_back(make_pair(dictionaryForm, 6));
         }
@@ -191,8 +191,8 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
             if (conjugation.count(term.substr(i, len))) {
                 pair<string, int> conj = conjugation[term.substr(i, len)];
                 for (int j = 0; j <= conj.first.length(); j+=3)
-                    if (ordered.count(term.substr(0, i) + conj.first.substr(j, 3))) { // TODO generalize to unordered
-                        vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i) + conj.first.substr(j, 3)];
+                    if (getEntry(term.substr(0, i) + conj.first.substr(j, 3))) {
+                        vector<DictionaryEntry>* dictionaryForm = getEntry(term.substr(0, i) + conj.first.substr(j, 3));
                         if (dictionaryForm->at(1).getVerbType() == "v5" && conj.second < 6
                             || dictionaryForm->at(1).getVerbType() == "v1" && conj.second > 6)
                             result.push_back(make_pair(dictionaryForm, conj.second));
@@ -216,8 +216,8 @@ vector<vector<DictionaryEntry>*> JishoDict::getSpellCorrectedEntries(const strin
         if (similarKana.count(term.substr(i,3))) {
             for (const string& correction : similarKana[term.substr(i,3)]) {
                 string newTerm = term.substr(0,i) + correction + term.substr(i+3);
-                if (ordered.count(newTerm))
-                    result.push_back(&ordered[newTerm]);
+                if (getEntry(newTerm))
+                    result.push_back(getEntry(newTerm));
             }
         }
     }
