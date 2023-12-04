@@ -8,32 +8,7 @@
 using namespace std;
 using namespace chrono;
 
-void printEntry(const string& target, map<string, vector<DictionaryEntry>>& jisho) {
-    if (jisho.count(target))
-        for (DictionaryEntry& entry: jisho[target])
-            entry.printEntry();
-    else
-        cout << target << " is missing\n";
-}
-
-vector<vector<DictionaryEntry>> basicSearch(const string& query, JishoDict& jisho) {
-    vector<vector<DictionaryEntry>> result;
-    for (unsigned int i = query.length(); i > 0; i -= 3)
-        if (!jisho.getEntry(query.substr(0, i)).empty())
-            result.push_back(jisho.getEntry(query.substr(0, i)));
-    return result;
-}
-
-void searchTest(const string& query, JishoDict& jisho) {
-    for (const vector<DictionaryEntry>& match: basicSearch(query, jisho)) {
-        for (const DictionaryEntry& entry: match) {
-            cout << entry.getMainText() << endl;
-            for (const string& def: entry.getDefinitions())
-                cout << "\t" << def << endl;
-        }
-    }
-}
-
+// A demonstration of build time differences. Run separately. Takes about 15 seconds to run.
 void testBuildTime() {
     JishoDict jisho(false);
     vector<int> unorderedTimes;
@@ -65,11 +40,13 @@ void testBuildTime() {
 }
 
 int main(int argc, char** argv) {
-    JishoDict jisho(true);
+    JishoDict jisho(false);
 
     jisho.scanTextAndStoreResults(argv[1]); // only search parameter should be without a space
     string json = jisho.printResultsJson();
-    ofstream result_json("./public/result_data.json");
+    ofstream result_json("../website/public/result_data.json");
+    if (!result_json.is_open())
+        cout << "File Error\n";
     result_json << json << endl;
     result_json.close();
 

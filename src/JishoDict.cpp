@@ -45,7 +45,7 @@ void JishoDict::buildDictionary() {
     start_time = steady_clock::now();
     for (int i = 1; i <= 32; ++i) { // Iterates for each term bank file
         // Open file
-        readFile("./jmdict_english/term_bank_" + to_string(i) + ".json");
+        readFile("../jmdict_english/term_bank_" + to_string(i) + ".json");
     }
     buildTime = duration_cast<milliseconds>(steady_clock::now() - start_time);
     cout << "Elapsed time: " << buildTime.count() << " milliseconds" << endl;
