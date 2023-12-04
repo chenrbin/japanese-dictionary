@@ -158,16 +158,19 @@ vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
         return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
 }
 
+// Searches for and returns the base form of the string of a conjugated verb
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
-    if (term.length() < 6)
+    if (term.length() < 6) // Terms under two characters (6 bytes) are invalid
         return {};
     vector<pair<vector<DictionaryEntry>*,int>> result;
     for (int i = 3; i <= term.length(); i+=3) {
+        // Start searching at the second character for conjugated endings
         if (conjugation.count(term.substr(i, 3))) {
             pair<string, int> conj = conjugation[term.substr(i, 3)];
             for (int j = 0; j <= conj.first.length(); j+=3)
                 if (ordered.count(term.substr(0, i) + conj.first.substr(j,3))) // TODO generalize to unordered
-                     result.push_back(make_pair(&ordered[term.substr(0, i) + conj.first.substr(j,3)], conj.second));
+                    // Pushes back the base verb and its conjugation type
+                    result.push_back(make_pair(&ordered[term.substr(0, i) + conj.first.substr(j,3)], conj.second));
         }
     }
     return result;
@@ -181,6 +184,7 @@ set<string> JishoDict::getTermsFromKana(const string& reading) {
         return kanaUnordered.count(reading) ? kanaUnordered[reading] : set<string>();
 }
 
+// Alterative way of accessing entries
 vector<DictionaryEntry> JishoDict::operator[](const string& term) {
     if (usingOrdered)
         return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
