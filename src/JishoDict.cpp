@@ -1,3 +1,4 @@
+#include <cstring>
 #include "JishoDict.h"
 
 // Select map mode, build dictionary, and start timer
@@ -347,5 +348,13 @@ int JishoDict::getKanaMapSize() {
 // Return the size of the longest string
 int JishoDict::getMaxStringSize() const {
     return maxStringSize;
+}
+void JishoDict::printDictionaryForms(const string& term) {
+    for (pair<vector<DictionaryEntry>*,int> i : getDictionaryForm("term"))
+        for (int j = 0; j < i.first->size(); j++)
+        {
+            cout << i.second << endl;
+            i.first->at(j).printEntry();
+        }
 }
 

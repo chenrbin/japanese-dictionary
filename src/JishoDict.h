@@ -56,6 +56,7 @@ public:
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
     vector<vector<DictionaryEntry>*> getSpellCorrectedEntries(const string& term);
     set<string> getTermsFromKana(const string&);
+    void printDictionaryForms(const string&);
     vector<DictionaryEntry> operator[](const string&);
     void scanText(const string& query);
     void scanTextAndStoreResults(const string& query);
