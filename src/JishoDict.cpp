@@ -274,9 +274,9 @@ void JishoDict::scanText(const string& query) {
     for (int i = 0; i < query.length(); i += 1) { // Start index
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
-            if (!hit.empty()) {
-                hit[0].printEntry(); // Print only one entry for now
+            vector<DictionaryEntry>* hit = getEntry(query.substr(i, j));
+            if (!hit->empty()) {
+                hit->at(0).printEntry(); // Print only one entry for now
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
@@ -293,9 +293,9 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
             string curr_query = query.substr(i, j);
-            vector<DictionaryEntry> hit = getEntry(curr_query);
-            if (!hit.empty()) {
-                searchResults.push_back(hit[0]);
+            vector<DictionaryEntry>* hit = getEntry(curr_query);
+            if (!hit->empty()) {
+                searchResults.push_back(hit->at(0));
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
