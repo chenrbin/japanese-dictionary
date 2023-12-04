@@ -1,6 +1,12 @@
 const loadJson = () => {
     $(".result-list").empty();
     $.getJSON("result_data.json", (data) => {
+        const resultInfo = "<div class='result-info'></div><hr>";
+        $(".result-list").append(resultInfo);
+        const dictBuildTime = "<span class='result-info-text'>Dictionary build time: " + data.dict_build_time + "ms</span>";
+        const dictSearchTime = "<span class='result-info-text'>Dictionary search time: " + data.dict_search_time + "ms</span>";
+        $(".result-info").append(dictBuildTime);
+        $(".result-info").append(dictSearchTime);
         $.each(data.results, (index, res) => {
             const resultTerm = "<div class='result'><span class='result-term'></span></div><hr>";
             $(".result-list").append(resultTerm);
