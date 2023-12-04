@@ -168,9 +168,9 @@ void JishoDict::addSingleEntry(const string& term, const string& reading, const 
 vector<DictionaryEntry>* JishoDict::getEntry(const string& term) {
     // If simply returning a reference map[term], the map will add keys for terms with no matches
     if (usingOrdered)
-        return ordered.count(term) ? &ordered[term] : vector<DictionaryEntry>();
+        return ordered.count(term) ? &ordered[term] : nullptr;
     else
-        return unordered.count(term) ? &unordered[term] : vector<DictionaryEntry>();
+        return unordered.count(term) ? &unordered[term] : nullptr;
 }
 
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
