@@ -6,12 +6,14 @@ JishoDict::JishoDict(bool usingOrdered) {
     maxStringSize = 0;
     buildDictionary();
     buildConjugations();
+    buildSimilarKana();
 }
 
 // Manually add conjugations to conjugation map
 void JishoDict::buildConjugations() {
     // Stems
-    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの", "ばびべぼ", "まみめも", "さしせそ", "かきけこ", "がぎげご"};
+    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの","ばびべぼ",
+                            "まみめも", "さしせそ", "かきけこ", "がぎげご"};
     string vowelEndings = "うつるぬぶむすくぐ";
     for (int i = 0; i < stems.size(); i++) {
         for (int j = 0; j < 4; j++) {
@@ -32,6 +34,19 @@ void JishoDict::buildConjugations() {
     conjugation["いた"] = make_pair("く", 5);
     conjugation["いだ"] = make_pair("ぐ", 5);
     conjugation["た"] = make_pair("る", 8);
+}
+
+void JishoDict::buildSimilarKana() {
+    vector<string> groups = {"かが", "きぎ", "くぐ", "けげ", "こご",
+                             "さざ", "しじ", "すず", "せぜ", "そぞ",
+                             "ただ", "ちぢ", "つづっ", "てで", "とど",
+                             "はばぱ", "ひびぴ", "ふぶぷ", "へべぺ", "ほぼぽ",
+                             "やゃ", "ゆゅ", "よょ"};
+    for (string group : groups)
+        for (int i = 0; i < group.size(); i+=3)
+            for (int j = 0; j < group.size(); j+=3)
+                if (i != j)
+                    similarKana[group.substr(i,3)].push_back(group.substr(j,3));
 }
 
 // Read jmdict files and record time
@@ -184,6 +199,13 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
         }
     }
     return result;
+}
+
+bool JishoDict::isKanaOnly(const std::string &term) {
+    for (int i = 0; i < term.length(); i+=3)
+        if (strcmp(term.substr(i, 3).c_str(), "一") >= 0) // Naive implementation; code points for kana are all less than kanji
+            return false;
+    return true;
 }
 
 // Returns a list of terms that match the given kana reading
