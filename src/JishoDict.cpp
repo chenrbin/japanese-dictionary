@@ -6,16 +6,18 @@ JishoDict::JishoDict(bool usingOrdered) {
     maxStringSize = 0;
     buildDictionary();
     buildConjugations();
+    buildSimilarKana();
 }
 
 // Manually add conjugations to conjugation map
 void JishoDict::buildConjugations() {
     // Stems
-    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの", "ばびべぼ", "まみめも", "さしせそ", "かきけこ", "がぎげご"};
+    vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの","ばびべぼ",
+                            "まみめも", "さしせそ", "かきけこ", "がぎげご"};
     string vowelEndings = "うつるぬぶむすくぐ";
-    for (const string& cons : stems) {
+    for (int i = 0; i < stems.size(); i++) {
         for (int j = 0; j < 4; j++) {
-            conjugation[cons.substr(j, 1)] = make_pair(vowelEndings.substr(j, 1), j);
+            conjugation[stems[i].substr(j*3, 3)] = make_pair(vowelEndings.substr(i*3, 3), j);
         }
     }
     // Te forms
@@ -24,14 +26,27 @@ void JishoDict::buildConjugations() {
     conjugation["して"] = make_pair("す", 4);
     conjugation["いて"] = make_pair("く", 4);
     conjugation["いで"] = make_pair("ぐ", 4);
-    conjugation["て"] = make_pair("る", 4);
+    conjugation["て"] = make_pair("る", 7);
     // Ta forms
     conjugation["った"] = make_pair("うつる", 5);
     conjugation["んだ"] = make_pair("ぬぶむ", 5);
     conjugation["した"] = make_pair("す", 5);
     conjugation["いた"] = make_pair("く", 5);
     conjugation["いだ"] = make_pair("ぐ", 5);
-    conjugation["た"] = make_pair("る", 5);
+    conjugation["た"] = make_pair("る", 8);
+}
+
+void JishoDict::buildSimilarKana() {
+    vector<string> groups = {"かが", "きぎ", "くぐ", "けげ", "こご",
+                             "さざ", "しじ", "すず", "せぜ", "そぞ",
+                             "ただ", "ちぢ", "つづっ", "てで", "とど",
+                             "はばぱ", "ひびぴ", "ふぶぷ", "へべぺ", "ほぼぽ",
+                             "やゃ", "ゆゅ", "よょ"};
+    for (string group : groups)
+        for (int i = 0; i < group.size(); i+=3)
+            for (int j = 0; j < group.size(); j+=3)
+                if (i != j)
+                    similarKana[group.substr(i,3)].push_back(group.substr(j,3));
 }
 
 // Read jmdict files and record time
@@ -45,7 +60,7 @@ void JishoDict::buildDictionary() {
     start_time = steady_clock::now();
     for (int i = 1; i <= 32; ++i) { // Iterates for each term bank file
         // Open file
-        readFile("./jmdict_english/term_bank_" + to_string(i) + ".json");
+        readFile("../jmdict_english/term_bank_" + to_string(i) + ".json");
     }
     buildTime = duration_cast<milliseconds>(steady_clock::now() - start_time);
     build_duration_str = to_string(buildTime.count());
@@ -151,27 +166,47 @@ void JishoDict::addSingleEntry(const string& term, const string& reading, const 
 
 // Search a term in the dictionary and return a copy of vector of entries.
 // Returns an empty vector if there is no match.
-vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
+vector<DictionaryEntry>* JishoDict::getEntry(const string& term) {
     // If simply returning a reference map[term], the map will add keys for terms with no matches
     if (usingOrdered)
-        return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
+        return ordered.count(term) ? &ordered[term] : nullptr;
     else
-        return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
+        return unordered.count(term) ? &unordered[term] : nullptr;
 }
 
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
-    if (term.length() < 6)
-        return {};
     vector<pair<vector<DictionaryEntry>*,int>> result;
-    for (int i = 3; i <= term.length(); i+=3) {
-        if (conjugation.count(term.substr(i, 3))) {
-            pair<string, int> conj = conjugation[term.substr(i, 3)];
-            for (int j = 0; j <= conj.first.length(); j+=3)
-                if (ordered.count(term.substr(0, i) + conj.first.substr(j,3))) // TODO generalize to unordered
-                     result.push_back(make_pair(&ordered[term.substr(0, i) + conj.first.substr(j,3)], conj.second));
+    for (int i = 3; i <= term.length(); i += 3) { // Ichiban stem test
+        if (ordered.count(term.substr(0, i).append("る"))) {
+            vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i).append("る")];
+            if (dictionaryForm->at(1).getField4() == "v1")
+                result.push_back(make_pair(dictionaryForm, 6));
+        }
+    }
+    for (int len = 3; len <= 6; len+=3) { // len = 3 for 1 char conjugations, 6 for 2 char conjugations
+        if (term.length() < len + 3) // Insufficient length to be a verb with given conjugation
+            return result;
+        for (int i = 3; i <= term.length(); i+=3) {
+            if (conjugation.count(term.substr(i, len))) {
+                pair<string, int> conj = conjugation[term.substr(i, len)];
+                for (int j = 0; j <= conj.first.length(); j+=3)
+                    if (ordered.count(term.substr(0, i) + conj.first.substr(j, 3))) { // TODO generalize to unordered
+                        vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i) + conj.first.substr(j, 3)];
+                        if (dictionaryForm->at(1).getField4() == "v5" && conj.second < 6
+                            || dictionaryForm->at(1).getField4() == "v1" && conj.second > 6)
+                            result.push_back(make_pair(dictionaryForm, conj.second));
+                    }
+            }
         }
     }
     return result;
+}
+
+bool JishoDict::isKanaOnly(const std::string &term) {
+    for (int i = 0; i < term.length(); i+=3)
+        if (strcmp(term.substr(i, 3).c_str(), "一") >= 0) // Naive implementation; code points for kana are all less than kanji
+            return false;
+    return true;
 }
 
 // Returns a list of terms that match the given kana reading
@@ -192,8 +227,8 @@ vector<DictionaryEntry> JishoDict::operator[](const string& term) {
 // Print all entries to a term
 void JishoDict::printEntry(const string& term) {
     auto entries = getEntry(term);
-    if (!entries.empty())
-        for (DictionaryEntry& entry: entries)
+    if (!entries->empty())
+        for (DictionaryEntry& entry : *entries)
             entry.printEntry();
     else
         cout << term << " is missing\n";
@@ -243,9 +278,9 @@ void JishoDict::scanText(const string& query) {
     for (int i = 0; i < query.length(); i += 1) { // Start index
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
-            if (!hit.empty()) {
-                hit[0].printEntry(); // Print only one entry for now
+            vector<DictionaryEntry>* hit = getEntry(query.substr(i, j));
+            if (!hit->empty()) {
+                hit->at(0).printEntry(); // Print only one entry for now
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
@@ -262,9 +297,9 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
             string curr_query = query.substr(i, j);
-            vector<DictionaryEntry> hit = getEntry(curr_query);
-            if (!hit.empty()) {
-                searchResults.push_back(hit[0]);
+            vector<DictionaryEntry>* hit = getEntry(curr_query);
+            if (!hit->empty()) {
+                searchResults.push_back(hit->at(0));
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }

@@ -34,19 +34,25 @@ class JishoDict {
     vector<DictionaryEntry> searchResults;
 
     // Map from elementary verb conjugations to base forms
-    // 0 : a-stem, 1 : i-stem, 2 : e-stem, 3 : o-stem, 4 : te-form, 5 : ta-form
+    // godan - 0 : a-stem, 1 : i-stem, 2 : e-stem, 3 : o-stem, 4 : te-form, 5 : ta-form
+    // ichidan - 6 : stem; 7 : te-form; 8 : ta-form
     map<string, pair<string,int>> conjugation;
+
+    // Map for common Japanese spelling errors
+    map<string, vector<string>> similarKana;
 public:
     JishoDict(bool);
     void buildDictionary();
     void buildConjugations();
+    void buildSimilarKana();
+    bool isKanaOnly(const string& term);
     void resetDictionary(bool);
     void readFile(const string&);
     void addSingleEntry(const string&, const string&, const string&);
     void printEntry(const string& term);
     void printResults();
     string printResultsJson();
-    vector<DictionaryEntry> getEntry(const string&);
+    vector<DictionaryEntry>* getEntry(const string&);
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
     vector<DictionaryEntry> getEntryConjugation(const string& term);
     set<string> getTermsFromKana(const string&);
