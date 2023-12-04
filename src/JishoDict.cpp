@@ -16,25 +16,27 @@ void JishoDict::buildConjugations() {
     vector<string> stems = {"あいえお", "たちてと", "らりれろ", "なにねの","ばびべぼ",
                             "まみめも", "さしせそ", "かきけこ", "がぎげご"};
     string vowelEndings = "うつるぬぶむすくぐ";
+    vector<string> forms = {"godan a-stem", "godan i-stem", "godan e-stem", "godan o-stem", "godan te-form", "godan ta-form",
+                            "ichidan te-form", "ichidan ta-form"};
     for (int i = 0; i < stems.size(); i++) {
         for (int j = 0; j < 4; j++) {
-            conjugation[stems[i].substr(j*3, 3)] = make_pair(vowelEndings.substr(i*3, 3), j);
+            conjugation[stems[i].substr(j*3, 3)] = make_pair(vowelEndings.substr(i*3, 3), forms[j]);
         }
     }
     // Te forms
-    conjugation["って"] = make_pair("うつる", 4);
-    conjugation["んで"] = make_pair("ぬぶむ", 4);
-    conjugation["して"] = make_pair("す", 4);
-    conjugation["いて"] = make_pair("く", 4);
-    conjugation["いで"] = make_pair("ぐ", 4);
-    conjugation["て"] = make_pair("る", 7);
+    conjugation["って"] = make_pair("うつる", forms[4]);
+    conjugation["んで"] = make_pair("ぬぶむ", forms[4]);
+    conjugation["して"] = make_pair("す", forms[4]);
+    conjugation["いて"] = make_pair("く", forms[4]);
+    conjugation["いで"] = make_pair("ぐ", forms[4]);
+    conjugation["て"] = make_pair("る", forms[6]);
     // Ta forms
-    conjugation["った"] = make_pair("うつる", 5);
-    conjugation["んだ"] = make_pair("ぬぶむ", 5);
-    conjugation["した"] = make_pair("す", 5);
-    conjugation["いた"] = make_pair("く", 5);
-    conjugation["いだ"] = make_pair("ぐ", 5);
-    conjugation["た"] = make_pair("る", 8);
+    conjugation["った"] = make_pair("うつる", forms[5]);
+    conjugation["んだ"] = make_pair("ぬぶむ", forms[5]);
+    conjugation["した"] = make_pair("す", forms[5]);
+    conjugation["いた"] = make_pair("く", forms[5]);
+    conjugation["いだ"] = make_pair("ぐ", forms[5]);
+    conjugation["た"] = make_pair("る", forms[7]);
 }
 
 void JishoDict::buildSimilarKana() {
@@ -175,13 +177,13 @@ vector<DictionaryEntry>* JishoDict::getEntry(const string& term) {
         return unordered.count(term) ? &unordered[term] : nullptr;
 }
 
-vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
-    vector<pair<vector<DictionaryEntry>*,int>> result;
+vector<pair<vector<DictionaryEntry>*,string>> JishoDict::getDictionaryForm(const string& term) {
+    vector<pair<vector<DictionaryEntry>*,string>> result;
     for (int i = 3; i <= term.length(); i += 3) { // Ichiban stem test
         if (getEntry(term.substr(0, i).append("る"))) {
             vector<DictionaryEntry>* dictionaryForm = getEntry(term.substr(0, i).append("る"));
             if (dictionaryForm->at(1).getVerbType() == "v1")
-                result.push_back(make_pair(dictionaryForm, 6));
+                result.push_back(make_pair(dictionaryForm, "ichidan stem"));
         }
     }
     for (int len = 3; len <= 6; len+=3) { // len = 3 for 1 char conjugations, 6 for 2 char conjugations
@@ -189,12 +191,12 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
             return result;
         for (int i = 3; i <= term.length(); i+=3) {
             if (conjugation.count(term.substr(i, len))) {
-                pair<string, int> conj = conjugation[term.substr(i, len)];
+                pair<string, string> conj = conjugation[term.substr(i, len)];
                 for (int j = 0; j <= conj.first.length(); j+=3)
                     if (getEntry(term.substr(0, i) + conj.first.substr(j, 3))) {
                         vector<DictionaryEntry>* dictionaryForm = getEntry(term.substr(0, i) + conj.first.substr(j, 3));
-                        if (dictionaryForm->at(1).getVerbType() == "v5" && conj.second < 6
-                            || dictionaryForm->at(1).getVerbType() == "v1" && conj.second > 6)
+                        if (dictionaryForm->at(1).getVerbType() == "v5" && conj.second.substr(0,5) == "godan"
+                            || dictionaryForm->at(1).getVerbType() == "v1" && conj.second.substr(0,7) == "ichidan")
                             result.push_back(make_pair(dictionaryForm, conj.second));
                     }
             }
@@ -350,7 +352,7 @@ int JishoDict::getMaxStringSize() const {
     return maxStringSize;
 }
 void JishoDict::printDictionaryForms(const string& term) {
-    for (pair<vector<DictionaryEntry>*,int> i : getDictionaryForm("term"))
+    for (pair<vector<DictionaryEntry>*,string> i : getDictionaryForm("term"))
         for (int j = 0; j < i.first->size(); j++)
         {
             cout << i.second << endl;
