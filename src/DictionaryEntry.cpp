@@ -8,8 +8,8 @@ const string& DictionaryEntry::getYomikata() const {
 const string& DictionaryEntry::getSpeechTag() const {
     return speechTag;
 }
-const string& DictionaryEntry::getField4() const {
-    return field4;
+const string& DictionaryEntry::getVerbType() const {
+    return verbType;
 }
 const string& DictionaryEntry::getField5() const {
     return field5;
@@ -30,7 +30,7 @@ DictionaryEntry::DictionaryEntry(const vector<string>& fields1to5, const vector<
     mainText = fields1to5[0];
     yomikata = fields1to5[1];
     speechTag = fields1to5[2];
-    field4 = fields1to5[3];
+    verbType = fields1to5[3];
     field5 = fields1to5[4];
     this->definitions = definitions;
     this->dictID = dictID;
@@ -53,7 +53,7 @@ DictionaryEntry::DictionaryEntry(const string& term, const string& reading, cons
     definitions.push_back(definition);
 
     // Initialize unused attributes
-    speechTag = "", field4 = "", field5 = "", dictID = "", field8 = "";
+    speechTag = "", verbType = "", field5 = "", dictID = "", field8 = "";
 
 }
 
