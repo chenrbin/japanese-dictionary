@@ -134,3 +134,15 @@ hr {
     transform: translate(42px, 18px);
 }
 
+.result-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 1vh;
+}
+
+.result-info-text {
+    font-size: 1.2em;
+    font-style: italic;
+    color: var(--text-color-placeholder);
+}
