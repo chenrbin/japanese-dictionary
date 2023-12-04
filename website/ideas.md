@@ -1,7 +1,8 @@
 ## Todo
 - [*] Finish entry styling
-- [ ] Read from JSON file
-- [ ] Link JSON entries to HTML elements
+- [*] Read from JSON file
+- [*] Link JSON entries to HTML elements
+- [ ] Settings to choose algorithm
 
 ## 小さなイデアのリスト
 * Term lookup on weblio / goo dict (can be neat search engine queries)
