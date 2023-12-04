@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <string.h> // needed for strcmp on some compilers
 #include <map>
 #include <vector>
 #include "DictionaryEntry.h"
@@ -67,21 +68,24 @@ void testBuildTime() {
 int main(int argc, char** argv) {
     JishoDict jisho(true);
 
-    jisho.scanTextAndStoreResults(argv[1]); // only search parameter should be without a space
+    // Run algorithms depending on second argument passed to the executable.
+    if (strcmp(argv[2],"1")) {
+        jisho.scanTextAndStoreResults(argv[1], 1); 
+    }
+    // else if (strcmp(argv[2],"2")) {
+    //
+    // }
+    // else if (strcmp(argv[2],"3")) {
+    //
+    // }
+    // else if (strcmp(argv[2],"4")) {
+    //
+    // }
+
     string json = jisho.printResultsJson();
     ofstream result_json("./public/result_data.json");
     result_json << json << endl;
     result_json.close();
-
-    vector<pair<vector<DictionaryEntry>*,int>> dictionaryForms = jisho.getDictionaryForm("笑って");
-    for (pair<vector<DictionaryEntry>*,int> i : dictionaryForms)
-    {
-        for (int j = 0; j < i.first->size(); j++)
-        {
-            cout << i.second << endl;
-            i.first->at(j).printEntry();
-        }
-    }
 
     return 0;
 }
