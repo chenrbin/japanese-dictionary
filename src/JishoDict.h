@@ -54,7 +54,7 @@ public:
     string printResultsJson();
     vector<DictionaryEntry>* getEntry(const string&);
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
-    vector<DictionaryEntry> getEntryConjugation(const string& term);
+    vector<vector<DictionaryEntry>*> getSpellCorrectedEntries(const string& term);
     set<string> getTermsFromKana(const string&);
     void printDictionaryForms(const string&);
     vector<DictionaryEntry> operator[](const string&);
