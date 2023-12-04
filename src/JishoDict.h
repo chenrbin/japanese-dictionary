@@ -25,6 +25,8 @@ class JishoDict {
     // Timer
     time_point<steady_clock> start_time;
     duration<long long, ratio<1, 1000>> buildTime{};
+    string build_duration_str = "";
+    string search_duration_str = "";
 
     // Extra functionality used for searching algorithm
     int maxStringSize;
@@ -50,7 +52,7 @@ public:
     void printEntry(const string& term);
     void printResults();
     string printResultsJson();
-    vector<DictionaryEntry> getEntry(const string&);
+    vector<DictionaryEntry>* getEntry(const string&);
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
     vector<DictionaryEntry> getEntryConjugation(const string& term);
     set<string> getTermsFromKana(const string&);

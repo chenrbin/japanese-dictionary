@@ -63,6 +63,7 @@ void JishoDict::buildDictionary() {
         readFile("../jmdict_english/term_bank_" + to_string(i) + ".json");
     }
     buildTime = duration_cast<milliseconds>(steady_clock::now() - start_time);
+    build_duration_str = to_string(buildTime.count());
     cout << "Elapsed time: " << buildTime.count() << " milliseconds" << endl;
 }
 
@@ -165,31 +166,27 @@ void JishoDict::addSingleEntry(const string& term, const string& reading, const 
 
 // Search a term in the dictionary and return a copy of vector of entries.
 // Returns an empty vector if there is no match.
-vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
+vector<DictionaryEntry>* JishoDict::getEntry(const string& term) {
     // If simply returning a reference map[term], the map will add keys for terms with no matches
     if (usingOrdered)
-        return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
+        return ordered.count(term) ? &ordered[term] : nullptr;
     else
-        return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
+        return unordered.count(term) ? &unordered[term] : nullptr;
 }
 
-// Searches for and returns the base form of the string of a conjugated verb
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
     vector<pair<vector<DictionaryEntry>*,int>> result;
-    // Ichiban stem test
-    for (int i = 3; i <= term.length(); i += 3) {
+    for (int i = 3; i <= term.length(); i += 3) { // Ichiban stem test
         if (ordered.count(term.substr(0, i).append("る"))) {
             vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i).append("る")];
             if (dictionaryForm->at(1).getField4() == "v1")
                 result.push_back(make_pair(dictionaryForm, 6));
         }
     }
-    // Ichiban te-form and godan stem/te-form tests 
     for (int len = 3; len <= 6; len+=3) { // len = 3 for 1 char conjugations, 6 for 2 char conjugations
         if (term.length() < len + 3) // Insufficient length to be a verb with given conjugation
             return result;
         for (int i = 3; i <= term.length(); i+=3) {
-            // Start searching at the second character for conjugated endings
             if (conjugation.count(term.substr(i, len))) {
                 pair<string, int> conj = conjugation[term.substr(i, len)];
                 for (int j = 0; j <= conj.first.length(); j+=3)
@@ -197,7 +194,6 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
                         vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i) + conj.first.substr(j, 3)];
                         if (dictionaryForm->at(1).getField4() == "v5" && conj.second < 6
                             || dictionaryForm->at(1).getField4() == "v1" && conj.second > 6)
-                            // Pushes back the base verb and its conjugation type
                             result.push_back(make_pair(dictionaryForm, conj.second));
                     }
             }
@@ -221,7 +217,6 @@ set<string> JishoDict::getTermsFromKana(const string& reading) {
         return kanaUnordered.count(reading) ? kanaUnordered[reading] : set<string>();
 }
 
-// Alterative way of accessing entries
 vector<DictionaryEntry> JishoDict::operator[](const string& term) {
     if (usingOrdered)
         return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();
@@ -232,8 +227,8 @@ vector<DictionaryEntry> JishoDict::operator[](const string& term) {
 // Print all entries to a term
 void JishoDict::printEntry(const string& term) {
     auto entries = getEntry(term);
-    if (!entries.empty())
-        for (DictionaryEntry& entry: entries)
+    if (!entries->empty())
+        for (DictionaryEntry& entry : *entries)
             entry.printEntry();
     else
         cout << term << " is missing\n";
@@ -250,7 +245,10 @@ void JishoDict::printResults() {
 }
 
 string JishoDict::printResultsJson() {
-    string json = "{\"results\":[";
+    string json = "{";
+    json += "\"dict_build_time\": \"" + build_duration_str + "\",";
+    json += "\"dict_search_time\": \"" + search_duration_str + "\",";
+    json += "\"results\":[";
     for (int i = 0; i < searchResults.size(); ++i) {
         DictionaryEntry result = searchResults[i];
         string term = "\"term\":\"" + result.getMainText() + "\",";
@@ -280,9 +278,9 @@ void JishoDict::scanText(const string& query) {
     for (int i = 0; i < query.length(); i += 1) { // Start index
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
-            vector<DictionaryEntry> hit = getEntry(query.substr(i, j));
-            if (!hit.empty()) {
-                hit[0].printEntry(); // Print only one entry for now
+            vector<DictionaryEntry>* hit = getEntry(query.substr(i, j));
+            if (!hit->empty()) {
+                hit->at(0).printEntry(); // Print only one entry for now
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
@@ -299,15 +297,17 @@ void JishoDict::scanTextAndStoreResults(const string& query) {
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
             string curr_query = query.substr(i, j);
-            vector<DictionaryEntry> hit = getEntry(curr_query);
-            if (!hit.empty()) {
-                searchResults.push_back(hit[0]);
+            vector<DictionaryEntry>* hit = getEntry(curr_query);
+            if (!hit->empty()) {
+                searchResults.push_back(hit->at(0));
                 i += j - 1; // Move starting point to the end of the hit term
                 break;
             }
         }
     }
     auto end = steady_clock::now();
+    
+    search_duration_str = to_string(float(duration_cast<microseconds>(end - start).count()) / 1000);
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
