@@ -8,31 +8,6 @@
 using namespace std;
 using namespace chrono;
 
-void printEntry(const string& target, map<string, vector<DictionaryEntry>>& jisho) {
-    if (jisho.count(target))
-        for (DictionaryEntry& entry: jisho[target])
-            entry.printEntry();
-    else
-        cout << target << " is missing\n";
-}
-
-vector<vector<DictionaryEntry>*> basicSearch(const string& query, JishoDict& jisho) {
-    vector<vector<DictionaryEntry>*> result;
-    for (unsigned int i = query.length(); i > 0; i -= 3)
-        if (!jisho.getEntry(query.substr(0, i))->empty())
-            result.push_back(jisho.getEntry(query.substr(0, i)));
-    return result;
-}
-
-void searchTest(const string& query, JishoDict& jisho) {
-    for (const vector<DictionaryEntry>* match: basicSearch(query, jisho)) {
-        for (const DictionaryEntry& entry: *match) {
-            cout << entry.getMainText() << endl;
-            for (const string& def: entry.getDefinitions())
-                cout << "\t" << def << endl;
-        }
-    }
-}
 
 void testBuildTime() {
     JishoDict jisho(false);
@@ -72,16 +47,6 @@ int main(int argc, char** argv) {
     ofstream result_json("./public/result_data.json");
     result_json << json << endl;
     result_json.close();
-
-    vector<pair<vector<DictionaryEntry>*,int>> dictionaryForms = jisho.getDictionaryForm("笑って");
-    for (pair<vector<DictionaryEntry>*,int> i : dictionaryForms)
-    {
-        for (int j = 0; j < i.first->size(); j++)
-        {
-            cout << i.second << endl;
-            i.first->at(j).printEntry();
-        }
-    }
 
     return 0;
 }
