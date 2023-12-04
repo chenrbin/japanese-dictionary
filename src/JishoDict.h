@@ -52,7 +52,7 @@ public:
     void printEntry(const string& term);
     void printResults();
     string printResultsJson();
-    vector<DictionaryEntry> getEntry(const string&);
+    vector<DictionaryEntry>* getEntry(const string&);
     vector<pair<vector<DictionaryEntry>*,int>> getDictionaryForm(const string& term);
     vector<DictionaryEntry> getEntryConjugation(const string& term);
     set<string> getTermsFromKana(const string&);
