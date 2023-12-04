@@ -173,19 +173,23 @@ vector<DictionaryEntry> JishoDict::getEntry(const string& term) {
         return unordered.count(term) ? unordered[term] : vector<DictionaryEntry>();
 }
 
+// Searches for and returns the base form of the string of a conjugated verb
 vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const string& term) {
     vector<pair<vector<DictionaryEntry>*,int>> result;
-    for (int i = 3; i <= term.length(); i += 3) { // Ichiban stem test
+    // Ichiban stem test
+    for (int i = 3; i <= term.length(); i += 3) {
         if (ordered.count(term.substr(0, i).append("る"))) {
             vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i).append("る")];
             if (dictionaryForm->at(1).getField4() == "v1")
                 result.push_back(make_pair(dictionaryForm, 6));
         }
     }
+    // Ichiban te-form and godan stem/te-form tests 
     for (int len = 3; len <= 6; len+=3) { // len = 3 for 1 char conjugations, 6 for 2 char conjugations
         if (term.length() < len + 3) // Insufficient length to be a verb with given conjugation
             return result;
         for (int i = 3; i <= term.length(); i+=3) {
+            // Start searching at the second character for conjugated endings
             if (conjugation.count(term.substr(i, len))) {
                 pair<string, int> conj = conjugation[term.substr(i, len)];
                 for (int j = 0; j <= conj.first.length(); j+=3)
@@ -193,6 +197,7 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
                         vector<DictionaryEntry>* dictionaryForm = &ordered[term.substr(0, i) + conj.first.substr(j, 3)];
                         if (dictionaryForm->at(1).getField4() == "v5" && conj.second < 6
                             || dictionaryForm->at(1).getField4() == "v1" && conj.second > 6)
+                            // Pushes back the base verb and its conjugation type
                             result.push_back(make_pair(dictionaryForm, conj.second));
                     }
             }
@@ -216,6 +221,7 @@ set<string> JishoDict::getTermsFromKana(const string& reading) {
         return kanaUnordered.count(reading) ? kanaUnordered[reading] : set<string>();
 }
 
+// Alterative way of accessing entries
 vector<DictionaryEntry> JishoDict::operator[](const string& term) {
     if (usingOrdered)
         return ordered.count(term) ? ordered[term] : vector<DictionaryEntry>();

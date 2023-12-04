@@ -11,12 +11,14 @@ app.get('/', async (req, res) => {
     res.sendFile("views/jisho.html", { root: __dirname });
 })
 
-app.post('/translate', async(req, res) => {
+app.post('/search', async(req, res) => {
     try {
         console.log(req.body);
-        exec(`./public/GengoOmnitool ${req.body.search}`, (error, stdout, stderr) => console.log(stdout));
-        await new Promise(temp => setTimeout(temp, 10)); // send response after waiting 10ms
-        res.send(true);
+        const proc = exec(`./public/GengoOmnitool ${req.body.search}`, (error, stdout, stderr) => console.log(stdout));
+        proc.on("close", () => {
+            // Waits to send response after the program has finished loading. That way, no timeout is needed to wait for the JSON generation to finish on the webpage.
+            return res.send(true);
+        });
     } catch (e) {
         console.error(e);
         res.send(false)

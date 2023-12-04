@@ -21,9 +21,9 @@ const loadJson = () => {
     });
 }
 
-const runOmnitool = () => {
+const runOmnitool = async () => {
     const searchQuery = "{\"search\": \"" + $("#textinput").val() + "\"}";
-    fetch("http://localhost:3000/translate", {
+    res = await fetch("http://localhost:3000/search", {
         method: "post",
         headers: {
             "Accept": "application/json",
@@ -31,16 +31,24 @@ const runOmnitool = () => {
         },
         body: searchQuery
     });
+    return res;
+}
+
+const getResults = async (e) => {
+    e.preventDefault(); // Prevent page from reloading.
+    res = await runOmnitool();
+    loadJson();
 }
 
 $(document).ready(() => {
+    $("#textinput").on('keydown', (e) => {
+        if(e.keyCode == 13) {
+            getResults(e);
+        }
+        // Runs when enter is pressed.
+    });
+
     $("#go").on('click', (e) => {
-        e.preventDefault(); // Prevent page from reloading.
-        $.when(runOmnitool()).done(() => {
-            setTimeout(() => {
-                loadJson();
-            }, 1500);
-            // Must load json after program finishes.
-        })
+        getResults(e);
     });
 });
