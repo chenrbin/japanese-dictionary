@@ -201,11 +201,25 @@ vector<pair<vector<DictionaryEntry>*,int>> JishoDict::getDictionaryForm(const st
     return result;
 }
 
-bool JishoDict::isKanaOnly(const std::string &term) {
+bool JishoDict::isKanaOnly(const string& term) {
     for (int i = 0; i < term.length(); i+=3)
         if (strcmp(term.substr(i, 3).c_str(), "一") >= 0) // Naive implementation; code points for kana are all less than kanji
             return false;
     return true;
+}
+
+vector<vector<DictionaryEntry>*> JishoDict::getSpellCorrectedEntries(const string& term) {
+    vector<vector<DictionaryEntry>*> result;
+    for (int i = 0; i < term.length(); i+=3) {
+        if (similarKana.count(term.substr(i,3))) {
+            for (const string& correction : similarKana[term.substr(i,3)]) {
+                string newTerm = term.substr(0,i) + correction + term.substr(i+3);
+                if (ordered.count(newTerm))
+                    result.push_back(&ordered[newTerm]);
+            }
+        }
+    }
+    return result;
 }
 
 // Returns a list of terms that match the given kana reading
