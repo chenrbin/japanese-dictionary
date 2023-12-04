@@ -83,5 +83,10 @@ int main(int argc, char** argv) {
         }
     }
 
+    vector<vector<DictionaryEntry>*> spelling = jisho.getSpellCorrectedEntries("必す");
+    for (vector<DictionaryEntry>* i : spelling)
+        for (DictionaryEntry& j : *i)
+            j.printEntry();
+
     return 0;
 }
