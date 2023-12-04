@@ -73,5 +73,15 @@ int main(int argc, char** argv) {
     result_json << json << endl;
     result_json.close();
 
+    vector<pair<vector<DictionaryEntry>*,int>> dictionaryForms = jisho.getDictionaryForm("笑って");
+    for (pair<vector<DictionaryEntry>*,int> i : dictionaryForms)
+    {
+        for (int j = 0; j < i.first->size(); j++)
+        {
+            cout << i.second << endl;
+            i.first->at(j).printEntry();
+        }
+    }
+
     return 0;
 }
