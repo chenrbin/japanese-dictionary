@@ -256,7 +256,7 @@ void JishoDict::printResults() {
         return;
     }
     for (auto result: searchResults) {
-        result.first.printEntry();
+        result.printEntry();
     }
 }
 
@@ -266,7 +266,7 @@ string JishoDict::printResultsJson() {
     json += "\"dict_search_time\": \"" + search_duration_str + "\",";
     json += "\"results\":[";
     for (int i = 0; i < searchResults.size(); ++i) {
-        DictionaryEntry result = searchResults[i].first;
+        DictionaryEntry result = searchResults[i];
         string term = "\"term\":\"" + result.getMainText() + "\",";
         string yomikata = "\"yomikata\":\"" + result.getYomikata() + "\",";
         string definitions = "\"definitions\":[";
@@ -306,27 +306,20 @@ void JishoDict::scanText(const string& query) {
     cout << "Search time: " << float(duration_cast<microseconds>(end - start).count()) / 1000 << " milliseconds\n";
 }
 
-void JishoDict::scanTextAndStoreResults(const string& query, int option) {
+void JishoDict::scanTextAndStoreResults(const string& query) {
     searchResults.clear();
     auto start = steady_clock::now();
     for (int i = 0; i < query.length(); i += 1) { // Start index
         for (unsigned int j = min(maxStringSize, int(query.size()) - i); j > 0; j -= 1) { // String length
             // Scan for hits
             string curr_query = query.substr(i, j);
-            switch (option) {
-                case 1:
-                    // run algo...
-                    break;
-                default:
-                    // run basic algorithm
-                    break;
+            vector<DictionaryEntry>* hit = getEntry(curr_query);
+            if (!hit->empty()) {
+                // searchResults.push_back(hit[0]);
+                searchResults.push_back(hit->at(0));
+                i += j - 1; // Move starting point to the end of the hit term
+                break;
             }
-            // vector<DictionaryEntry>* hit = getEntry(curr_query);
-            // if (!hit->empty()) {
-            //     searchResults.push_back(make_pair(hit->at(0), ""));
-            //     i += j - 1; // Move starting point to the end of the hit term
-            //     break;
-            // }
         }
     }
     auto end = steady_clock::now();
