@@ -31,7 +31,7 @@ class JishoDict {
     // Extra functionality used for searching algorithm
     int maxStringSize;
 
-    vector<pair<DictionaryEntry, string>> searchResults;
+    vector<DictionaryEntry> searchResults;
 
     // Map from elementary verb conjugations to base forms
     map<string, pair<string,string>> conjugation;
@@ -57,7 +57,7 @@ public:
     void printDictionaryForms(const string&);
     vector<DictionaryEntry> operator[](const string&);
     void scanText(const string& query);
-    void scanTextAndStoreResults(const string& query, int option);
+    void scanTextAndStoreResults(const string& query);
     int getBuildTime() const;
     bool getUsingOrdered() const;
     int getDictionarySize();

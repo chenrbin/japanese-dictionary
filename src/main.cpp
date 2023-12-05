@@ -44,18 +44,7 @@ int main(int argc, char** argv) {
     JishoDict jisho(true);
 
     // Run algorithms depending on second argument passed to the executable.
-    if (strcmp(argv[2],"1")) {
-        jisho.scanTextAndStoreResults(argv[1], 1); 
-    }
-    // else if (strcmp(argv[2],"2")) {
-    //
-    // }
-    // else if (strcmp(argv[2],"3")) {
-    //
-    // }
-    // else if (strcmp(argv[2],"4")) {
-    //
-    // }
+    jisho.scanTextAndStoreResults(argv[1]); 
 
     string json = jisho.printResultsJson();
     ofstream result_json("./public/result_data.json");
